@@ -15,6 +15,32 @@ Key features planned for this project:
 - **Kubernetes Deployment**: Containerization, Helm charts, and autoscaling.
 - **CI/CD**: GitHub Actions for automated testing, evaluation, and deployment.
 
+## Project Structure
+```text
+.
+├── LICENSE
+├── README.md
+├── configs        # Configuration files (YAML, JSON, etc.)
+├── infra          # Infrastructure as code
+│   ├── helm       # Helm charts for Kubernetes deployment
+│   └── k8s        # Raw Kubernetes manifests
+├── notebooks      # Jupyter notebooks for experimentation and prototyping
+├── services       # Core services for the RAG pipeline
+│   ├── api        # FastAPI service
+│   │   ├── __init__.py
+│   │   └── app
+│   │       └── __init__.py
+│   ├── model
+│   │   ├── __init__.py
+│   │   └── src
+│   │       └── __init__.py
+│   └── retriever
+│       ├── __init__.py
+│       └── src
+│           └── __init__.py
+└── tests
+```
+
 ## Tech Stack
 
 - **Backend**: FastAPI, vLLM / TGI  
