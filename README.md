@@ -57,14 +57,6 @@ Key features planned for this project:
 - [ ] Phase 3: Kubernetes & Helm deployment  
 - [ ] Phase 4: CI/CD with GitHub Actions  
 
-## Getting Started
-
-
-```bash
-git clone https://github.com/sermengi/rag-mlops.git
-cd rag-mlops
-```
-
 ## Quick start (uv)
 
 1) Install uv (one time)
