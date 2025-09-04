@@ -59,7 +59,29 @@ Key features planned for this project:
 
 ## Getting Started
 
-Clone the repository:
+
 ```bash
 git clone https://github.com/sermengi/rag-mlops.git
 cd rag-mlops
+```
+
+## Quick start (uv)
+
+1) Install uv (one time)
+```bash
+# macOS (brew)
+brew install uv
+# or via pipx
+pipx install uv
+```
+2) Clone the repository and sync requirements:
+```bash
+git clone https://github.com/sermengi/rag-mlops.git
+cd rag-mlops
+uv sync  # creates .venv and installs pinned deps from uv.lock
+```
+3) Run the API
+```bash
+# adjust module path if your app object lives elsewhere
+uv run uvicorn services.api.app.main:app --host 0.0.0.0 --port 8000 --reload
+```
