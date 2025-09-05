@@ -4,7 +4,7 @@ Production-grade Retrieval-Augmented Generation (RAG) service with observability
 
 ## Overview
 
-This project is designed to showcase how to build a **full-stack RAG system** and productionize it using modern **MLOps practices**.  
+This project is designed to showcase how to build a **full-stack RAG system** and productionize it using modern **MLOps practices**.
 The goal is to cover the full lifecycle of a machine learning application, from ingestion and retrieval to monitoring, evaluation, and deployment.
 
 Key features planned for this project:
@@ -43,19 +43,19 @@ Key features planned for this project:
 
 ## Tech Stack
 
-- **Backend**: FastAPI, vLLM / TGI  
-- **Vector Store**: Qdrant  
-- **Evaluation**: Ragas, MLflow  
-- **Monitoring**: OpenTelemetry, Prometheus, Grafana  
-- **Deployment**: Docker, Kubernetes, Helm, GitHub Actions  
+- **Backend**: FastAPI, vLLM / TGI
+- **Vector Store**: Qdrant
+- **Evaluation**: Ragas, MLflow
+- **Monitoring**: OpenTelemetry, Prometheus, Grafana
+- **Deployment**: Docker, Kubernetes, Helm, GitHub Actions
 
 ## Roadmap
 
-- [ ] Phase 0: Minimal RAG service (local)  
-- [ ] Phase 1: Observability & SLOs  
-- [ ] Phase 2: Quality evaluation loop  
-- [ ] Phase 3: Kubernetes & Helm deployment  
-- [ ] Phase 4: CI/CD with GitHub Actions  
+- [ ] Phase 0: Minimal RAG service (local)
+- [ ] Phase 1: Observability & SLOs
+- [ ] Phase 2: Quality evaluation loop
+- [ ] Phase 3: Kubernetes & Helm deployment
+- [ ] Phase 4: CI/CD with GitHub Actions
 
 ## Quick start (uv)
 
