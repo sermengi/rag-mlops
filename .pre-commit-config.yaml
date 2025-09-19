@@ -17,6 +17,7 @@ repos:
           - pydantic==2.7.1
           - qdrant-client==1.7.3
           - pypdf==6.0.0
+          - tiktoken==0.11.0
 
 
   # Pre-commit built-in checks (basic hygiene)
