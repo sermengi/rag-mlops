@@ -10,7 +10,8 @@ from pypdf import PdfReader
 @dataclass(frozen=True)
 class PageText:
     page_no: int
-    text: str
+    raw_text: str
+    text: str # normalized; used for chunking
 
 @dataclass(frozen=True)
 class RawDoc:
@@ -44,8 +45,9 @@ def load_pdf(path: str | Path, *, doc_id: Optional[str] = None) -> RawDoc:
     pages: List[PageText] = []
     for i, page in enumerate(reader.pages, start=1):
         try:
-            text = page.extract_text() or ""
-            pages.append(PageText(page_no=i, text=text))
+            raw_text = page.extract_text() or ""
+            text = normalize_text(raw_text)
+            pages.append(PageText(page_no=i, raw_text=raw_text ,text=text))
         except Exception as e:
             raise e
 
@@ -55,7 +57,9 @@ def load_pdf(path: str | Path, *, doc_id: Optional[str] = None) -> RawDoc:
         "filename": p.name,
         "title": (reader.metadata.title or "").strip() if reader.metadata else "",
         "author": (reader.metadata.author or "").strip() if reader.metadata else "",
-        "normalized_hash": _sha256("\n\n".join(normalized_pages).encode("utf-8"))
+        "content_hash_raw": content_hash,
+        "normalized_hash": _sha256("\n\n".join(normalized_pages).encode("utf-8")),
+        "normalization_version": "v1",
     }
 
     return RawDoc(
