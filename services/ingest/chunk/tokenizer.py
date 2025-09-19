@@ -28,6 +28,5 @@ class _TikTok:
 
 def get_tokenizer(name: str = "cl100k_base") -> Tokenizer:
     import tiktoken
-    # tiktoken is untyped; tell mypy what interface we rely on
     enc = cast(_EncProtocol, tiktoken.get_encoding(name))
     return _TikTok(enc, name)
