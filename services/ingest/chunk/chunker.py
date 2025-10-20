@@ -2,6 +2,10 @@ from __future__ import annotations
 from typing import List
 
 from .tokenizer import Tokenizer
+from ..pdf_reader import RawDoc
+from .models import Chunk, ChunkedDoc
+from .pager import concat_pages, char_span_to_page_span
+from .tokenizer import get_tokenizer
 
 
 MIN_CHARS = 50  # drop very small/boilerplate chunks
@@ -53,3 +57,40 @@ def make_chunks_fixed(full_text: str, tok: Tokenizer, chunk_size: int, overlap: 
         out.append((char_start, char_end, snippet, token_count))
 
     return out
+
+
+def chunk_rawdoc(
+        raw: RawDoc,
+        tokenizer_name: str = "cl100k_base",
+        chunk_size: int = 800,
+        overlap: int = 160,
+    ) -> ChunkedDoc:
+    full_text, page_spans = concat_pages(raw.pages)
+    tok = get_tokenizer(tokenizer_name)
+    windows = make_chunks_fixed(full_text, tok, chunk_size, overlap)
+
+    chunks: List[Chunk] = []
+    for idx, (c_start, c_end, snippet, tcount) in enumerate(windows):
+        p_start, p_end = char_span_to_page_span(c_start, c_end, page_spans)
+        snippet = f"[Pages {p_start}-{p_end}] " + snippet
+        chunks.append(
+            Chunk(
+                doc_id=raw.doc_id,
+                chunk_index=idx,
+                text=snippet,
+                token_count=tcount,
+                char_start=c_start,
+                char_end=c_end,
+                page_start=p_start,
+                page_end=p_end,
+                section=None,
+            )
+        )
+
+    return ChunkedDoc(
+        doc_id=raw.doc_id,
+        chunks=chunks,
+        chunk_size=chunk_size,
+        chunk_overlap=overlap,
+        tokenizer_name=tok.name,
+    )
