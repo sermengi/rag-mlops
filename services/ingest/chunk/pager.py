@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List, Optional, Tuple
 
 from services.ingest.pdf_reader import PageText
+from typing import cast
 
 PAGE_BREAK = "\n\n[PAGE_BREAK]\n\n"
 
@@ -31,5 +32,4 @@ def char_span_to_page_span(char_start: int, char_end: int, page_spans: List[Tupl
     if first is None:
         first = last = 1
 
-    assert first is not None and last is not None
-    return first, last
+    return cast(Tuple[int, int], (first, last))
