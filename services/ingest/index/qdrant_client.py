@@ -1,8 +1,12 @@
 from __future__ import annotations
-from typing import Optional
+from typing import Any, List, Iterable, Dict, Optional
 from qdrant_client import QdrantClient
+import time
+import uuid
 
-from qdrant_client.models import Distance, VectorParams
+from qdrant_client.models import (
+    Distance, VectorParams, PointStruct,
+)
 
 from .schemas import CollectionSpec
 
@@ -36,3 +40,45 @@ def ensure_collection(client: QdrantClient, spec: CollectionSpec) -> None:
             )
         except Exception:
             pass
+
+def make_point_id(doc_id: str, chunk_index: int) -> str:
+    return str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}:{chunk_index}"))
+
+def upsert_embedded_chunks(
+        client: QdrantClient,
+        collection: str,
+        embedded_chunks: Iterable[Dict[str, Any]],
+        *,
+        batch_size: int = 128,
+        max_retries: int = 3,
+        retry_backoff_s: float = 0.5,
+) -> int:
+    buf: List[PointStruct] = []
+    count = 0
+
+    def flush() -> None:
+        nonlocal buf, count
+        if not buf:
+            return
+        for attempt in range(max_retries):
+            try:
+                client.upsert(collection_name=collection, points=buf)
+                count += len(buf)
+                buf = []
+                return
+            except Exception:
+                if attempt == max_retries - 1:
+                    raise
+                time.sleep(retry_backoff_s * (2**attempt))
+
+    for item in embedded_chunks:
+        pid = make_point_id(item["doc_id"], int(item["chunk_index"]))
+        vec = item["vector"]
+        payload = dict(item.get("payload", {}))
+        payload.setdefault("doc_id", item["doc_id"])
+        payload.setdefault("chunk_index", item["chunk_index"])
+        buf.append(PointStruct(id=pid, vector=vec, payload=payload))
+        if len(buf) >= batch_size:
+            flush()
+    flush()
+    return count
