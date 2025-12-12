@@ -5,7 +5,7 @@ import time
 import uuid
 
 from qdrant_client.models import (
-    Distance, VectorParams, PointStruct,
+    Distance, VectorParams, PointStruct, Condition, FieldCondition, MatchValue, Filter
 )
 
 from .schemas import CollectionSpec
@@ -82,3 +82,26 @@ def upsert_embedded_chunks(
             flush()
     flush()
     return count
+
+def search(
+        client: QdrantClient,
+        collection: str,
+        query_vector: List[float],
+        top_k: int = 5,
+        filter_eq: Optional[Dict[str, Any]] = None,
+        ) -> List[Dict[str, Any]]:
+    qfilter = None
+    if filter_eq:
+        conditions: List[Condition] = []
+        for k, v in filter_eq.items():
+            conditions.append(FieldCondition(key=k, match=MatchValue(value=v)))
+        qfilter = Filter(must=conditions)
+
+    res = client.search(
+        collection_name=collection,
+        query_vector=query_vector,
+        limit=top_k,
+        query_filter=qfilter,
+        with_payload=True,
+    )
+    return [{"id": r.id, "score": r.score, "payload": r.payload} for r in res]
