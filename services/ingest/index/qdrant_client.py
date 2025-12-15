@@ -16,12 +16,12 @@ def connect_qdrant(
         port: int = 6333,
         api_key: Optional[str] = None,
         https: bool = False
-) -> QdrantClient:
+) -> Any:
     if https:
         return QdrantClient(url=f"https://{host}", api_key=api_key, prefer_grpc=False)
     return QdrantClient(host=host, port=port, api_key=api_key, prefer_grpc=False)
 
-def ensure_collection(client: QdrantClient, spec: CollectionSpec) -> None:
+def ensure_collection(client: Any, spec: CollectionSpec) -> None:
     existing = [c.name for c in client.get_collections().collections]
     if spec.name in existing:
         return
@@ -45,7 +45,7 @@ def make_point_id(doc_id: str, chunk_index: int) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}:{chunk_index}"))
 
 def upsert_embedded_chunks(
-        client: QdrantClient,
+        client: Any,
         collection: str,
         embedded_chunks: Iterable[Dict[str, Any]],
         *,
@@ -84,7 +84,7 @@ def upsert_embedded_chunks(
     return count
 
 def search(
-        client: QdrantClient,
+        client: Any,
         collection: str,
         query_vector: List[float],
         top_k: int = 5,
@@ -97,11 +97,11 @@ def search(
             conditions.append(FieldCondition(key=k, match=MatchValue(value=v)))
         qfilter = Filter(must=conditions)
 
-    res = client.search(
+    res = client.query_points(
         collection_name=collection,
-        query_vector=query_vector,
-        limit=top_k,
+        query=query_vector,
         query_filter=qfilter,
+        limit=top_k,
         with_payload=True,
     )
-    return [{"id": r.id, "score": r.score, "payload": r.payload} for r in res]
+    return [{"id": p.id, "score": p.score, "payload": p.payload} for p in res.points]
