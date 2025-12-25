@@ -14,6 +14,19 @@ class PromptBuilder:
     def __init__(self, *, max_content_chars: int = 12_000) -> None:
         self._max_content_chars = max_content_chars
 
+    def build(self, question: str, chunks: List[RetrievedChunk]) -> PromptArtifacts:
+        context_text, sources = self._format_context(chunks)
+
+        system = self._system_prompt()
+        user = self._user_prompt(question=question, context=context_text)
+
+        message = [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ]
+        return PromptArtifacts(messages=message, sources=sources)
+
+
     def _system_prompt(self) -> str:
         return (
             "You are a helpful assistant.\n"
