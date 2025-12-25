@@ -15,7 +15,11 @@ class PromptBuilder:
         self._max_content_chars = max_content_chars
 
     def build(self, question: str, chunks: List[RetrievedChunk]) -> PromptArtifacts:
-        context_text, sources = self._format_context(chunks)
+        if not chunks:
+            context_text = "No relevant context was found."
+            sources: List[Dict[str, object]] = []
+        else:
+            context_text, sources = self._format_context(chunks)
 
         system = self._system_prompt()
         user = self._user_prompt(question=question, context=context_text)
