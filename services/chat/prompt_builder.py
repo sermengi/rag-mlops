@@ -76,13 +76,25 @@ class PromptBuilder:
                 header += f" source={c.source}"
 
             text = (c.text or "").strip()
+            block_body = f"{header}\n{text}"
 
-            block = f"{header}\n{text}"
-            if total + len(block) > self._max_content_chars:
+            remaining = self._max_content_chars - total
+            if remaining <= 0:
                 break
 
-            blocks.append(block)
-            total += len(block) + 2
+            if len(block_body) <= remaining:
+                blocks.append(block_body)
+                total += len(block_body) + 2
+                continue
+
+            allowed_text_len = max(0, remaining - len(header) - 1)
+            truncated_text = text[:allowed_text_len].rstrip()
+
+            if truncated_text:
+                blocks.append(f"{header}\n{truncated_text}")
+                total += len(header) + len(truncated_text) + 2
+
+            break
 
         context = "\n\n".join(blocks).strip()
         return context, sources
